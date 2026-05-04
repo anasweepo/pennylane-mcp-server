@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "pennylane-mcp",
   "display_name": "Pennylane MCP",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Serveur MCP pour l'API Pennylane v2 (GET, POST, PUT, DELETE).",
   "long_description": "Ce bundle expose l'API externe Pennylane v2 via le Model Context Protocol. Il fournit un outil dédié pour récupérer la souscription webhook du token courant, ainsi que des outils HTTP génériques GET, POST, PUT et DELETE pour couvrir le reste de l'API. Le token est saisi dans la configuration de l'extension puis transmis localement au serveur via variable d'environnement.",
   "author": {
