@@ -1,0 +1,14 @@
+powershell-warn.png
+*.mcpb
+.git
+.gitignore
+.vscode
+.idea
+**/*.log
+**/.DS_Store
+**/Thumbs.db
+server/**/*.md
+server/**/test/
+server/**/tests/
+server/**/*.test.js
+server/**/*.spec.js

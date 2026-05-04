@@ -1,0 +1,71 @@
+{
+  "manifest_version": "0.3",
+  "name": "pennylane-mcp",
+  "display_name": "Pennylane MCP",
+  "version": "1.0.0",
+  "description": "Serveur MCP pour l'API Pennylane v2 (GET, POST, PUT, DELETE).",
+  "long_description": "Ce bundle expose l'API externe Pennylane v2 via le Model Context Protocol. Il fournit un outil dédié pour récupérer la souscription webhook du token courant, ainsi que des outils HTTP génériques GET, POST, PUT et DELETE pour couvrir le reste de l'API. Le token est saisi dans la configuration de l'extension puis transmis localement au serveur via variable d'environnement.",
+  "author": {
+    "name": "Weepo",
+    "url": "https://github.com/anasweepo"
+  },
+  "homepage": "https://github.com/anasweepo/pennylane-mcp-server",
+  "documentation": "https://pennylane.readme.io/reference/",
+  "support": "https://github.com/anasweepo/pennylane-mcp-server/issues",
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/index.js"
+      ],
+      "env": {
+        "PENNYLANE_API_TOKEN": "${user_config.pennylane_api_token}"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "Webhook · Récupérer la souscription",
+      "description": "[Lecture seule] Récupère la souscription webhook du token authentifié."
+    },
+    {
+      "name": "HTTP générique · Pennylane",
+      "description": "Exécute une requête HTTP générique GET/POST/PUT/DELETE sur l'API v2."
+    },
+    {
+      "name": "Endpoints auto-générés (OpenAPI)",
+      "description": "Charge et expose automatiquement tous les endpoints GET/POST/PUT/DELETE disponibles dans la spec OpenAPI Pennylane."
+    }
+  ],
+  "tools_generated": false,
+  "keywords": [
+    "pennylane",
+    "accounting",
+    "api",
+    "webhook",
+    "mcp"
+  ],
+  "license": "MIT",
+  "user_config": {
+    "pennylane_api_token": {
+      "type": "string",
+      "title": "Pennylane API Token",
+      "description": "Token d'API Pennylane (OAuth Bearer ou token développeur), stocké localement puis injecté via PENNYLANE_API_TOKEN.",
+      "sensitive": true,
+      "required": true
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}
