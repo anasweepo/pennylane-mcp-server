@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & publish MCPB bundle
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install bundled server dependencies
+        working-directory: server
+        run: npm ci --omit=dev
+
+      - name: Verify manifest version matches tag
+        run: |
+          MANIFEST_VERSION=$(node -p "require('./manifest.json').version")
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          if [ "$MANIFEST_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::manifest.json version ($MANIFEST_VERSION) does not match tag (v$TAG_VERSION). Bump 'version' in manifest.json before tagging."
+            exit 1
+          fi
+          echo "Version $MANIFEST_VERSION matches tag v$TAG_VERSION"
+
+      - name: Validate manifest
+        run: npx -y @anthropic-ai/mcpb validate manifest.json
+
+      - name: Syntax check
+        working-directory: server
+        run: node --check index.js
+
+      - name: Build MCPB bundle
+        run: |
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          npx -y @anthropic-ai/mcpb pack . "pennylane-mcp-v${TAG_VERSION}.mcpb"
+          ls -lh *.mcpb
+
+      - name: Compute SHA-256
+        id: hash
+        run: |
+          SHA=$(sha256sum *.mcpb | awk '{print $1}')
+          echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
+          echo "SHA-256: $SHA"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: "*.mcpb"
+          body: |
+            ## Installation
+
+            1. Télécharger `pennylane-mcp-${{ github.ref_name }}.mcpb` ci-dessous.
+            2. Double-cliquer le fichier, ou dans Claude Desktop : **Settings → Extensions → Install from file…**
+            3. Renseigner le **Pennylane API Token**.
+            4. Cliquer **Install**.
+
+            Le bundle expose les endpoints Pennylane (GET/POST/PUT/DELETE) générés depuis la spec OpenAPI au démarrage.
+
+            **SHA-256** : `${{ steps.hash.outputs.sha256 }}`
