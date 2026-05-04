@@ -27,16 +27,88 @@
   },
   "tools": [
     {
-      "name": "Webhook · Récupérer la souscription",
-      "description": "[Lecture seule] Récupère la souscription webhook du token authentifié."
+      "name": "Webhook",
+      "description": "Souscription webhook (lecture, création, mise à jour, suppression)."
     },
     {
-      "name": "HTTP générique · Pennylane",
-      "description": "Exécute une requête HTTP générique GET/POST/PUT/DELETE sur l'API v2."
+      "name": "Mandate migration candidates",
+      "description": "Migration de mandats vers Pro Account et demandes associées."
     },
     {
-      "name": "Endpoints auto-générés (OpenAPI)",
-      "description": "Charge et expose automatiquement tous les endpoints GET/POST/PUT/DELETE disponibles dans la spec OpenAPI Pennylane."
+      "name": "Journals",
+      "description": "Consultation et création de journaux comptables."
+    },
+    {
+      "name": "Ledger Accounts",
+      "description": "Gestion des comptes généraux."
+    },
+    {
+      "name": "Ledger Entries",
+      "description": "Gestion des écritures comptables."
+    },
+    {
+      "name": "Ledger Entry Lines",
+      "description": "Lignes d'écriture, lettrage et catégorisation."
+    },
+    {
+      "name": "Exports",
+      "description": "Exports comptables (AGL, GL, FEC)."
+    },
+    {
+      "name": "Category Groups / Categories",
+      "description": "Groupes de catégories et catégories analytiques."
+    },
+    {
+      "name": "Billing Subscriptions",
+      "description": "Abonnements de facturation et lignes associées."
+    },
+    {
+      "name": "Changelogs",
+      "description": "Flux de changements (factures, clients, fournisseurs, transactions...)."
+    },
+    {
+      "name": "Commercial Documents",
+      "description": "Documents commerciaux, annexes et lignes."
+    },
+    {
+      "name": "Customer Invoices",
+      "description": "Factures clients, pièces jointes, statuts, catégories."
+    },
+    {
+      "name": "Products",
+      "description": "Catalogue produits."
+    },
+    {
+      "name": "Customers",
+      "description": "Clients société/individuels, contacts et catégories."
+    },
+    {
+      "name": "Mandates",
+      "description": "Mandats SEPA et GoCardless."
+    },
+    {
+      "name": "Quotes",
+      "description": "Devis, annexes et statuts."
+    },
+    {
+      "name": "Supplier Invoices",
+      "description": "Factures fournisseurs, catégories, paiements et e-invoices."
+    },
+    {
+      "name": "Purchase Requests",
+      "description": "Demandes d'achat et imports."
+    },
+    {
+      "name": "Suppliers",
+      "description": "Fournisseurs et catégories."
+    },
+    {
+      "name": "Bank Accounts / Transactions",
+      "description": "Comptes bancaires, transactions et rapprochements."
+    },
+    {
+      "name": "Users / PA Registrations",
+      "description": "Profil utilisateur et informations PA registrations."
     }
   ],
   "tools_generated": false,
