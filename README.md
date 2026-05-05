@@ -13,9 +13,10 @@ Le `.mcpb` est produit par la CI sur chaque tag `v*`, pas dans l'archive ZIP du 
 
 Il expose :
 
-- un outil dédié pour `GET /webhook_subscription`
-- un outil HTTP générique (`GET/POST/PUT/DELETE`)
-- tous les endpoints Pennylane v2 `GET/POST/PUT/DELETE` auto-générés depuis la spec OpenAPI
+- des outils explicites par endpoint Pennylane v2 (liste maintenue dans `registerListedPennylaneEndpoints`)
+- une couverture en lecture/écriture (`GET/POST/PUT/DELETE`) selon chaque endpoint déclaré
+- des familles d'outils visibles à l'installation (`Webhook`, `Journals`, `Ledger Accounts`, `Customer Invoices`, `Supplier Invoices`, etc.)
+- un outil générique `Generic HTTP · Pennylane` pour les cas manuels (`method`, `path`, `query`, `body`)
 
 Documentation endpoint webhook: [Get a webhook subscription](https://pennylane.readme.io/reference/getwebhooksubscription)  
 Spec OpenAPI: [Pennylane OpenAPI](https://pennylane.readme.io/openapi)
@@ -45,20 +46,56 @@ Authorization: Bearer <token>
 
 ## Outils MCP exposés
 
-- `get_webhook_subscription` : récupère la souscription webhook du token courant
-- `pennylane_request` : requête HTTP générique avec `method`, `path`, `query`, `body`
-- `pl_*` : outils auto-générés à partir des `operationId` (ou du couple méthode+path) de la spec OpenAPI
+Outils MCP exposés à l'installation :
 
-Exemples d'outils auto-générés :
+- `Webhook` : souscription webhook (lecture, création, mise à jour, suppression)
+- `Mandate migration candidates` : migration de mandats vers Pro Account et demandes associées
+- `Journals` : consultation et création de journaux comptables
+- `Ledger Accounts` : gestion des comptes généraux
+- `Ledger Entries` : gestion des écritures comptables
+- `Ledger Entry Lines` : lignes d'écriture, lettrage et catégorisation
+- `Exports` : exports comptables (AGL, GL, FEC)
+- `Category Groups / Categories` : groupes de catégories et catégories analytiques
+- `Billing Subscriptions` : abonnements de facturation et lignes associées
+- `Changelogs` : flux de changements (factures, clients, fournisseurs, transactions...)
+- `Commercial Documents` : documents commerciaux, annexes et lignes
+- `Customer Invoices` : factures clients, pièces jointes, statuts, catégories
+- `Products` : catalogue produits
+- `Customers` : clients société/individuels, contacts et catégories
+- `Mandates` : mandats SEPA et GoCardless
+- `Quotes` : devis, annexes et statuts
+- `Supplier Invoices` : factures fournisseurs, catégories, paiements et e-invoices
+- `Purchase Requests` : demandes d'achat et imports
+- `Suppliers` : fournisseurs et catégories
+- `Bank Accounts / Transactions` : comptes bancaires, transactions et rapprochements
+- `Users / PA Registrations` : profil utilisateur et informations PA registrations
 
-- `pl_getcustomers`
-- `pl_createcustomer`
-- `pl_getinvoices`
+## APIs traitées (détail)
 
-Le serveur charge la spec au démarrage depuis :
+Le serveur couvre les endpoints suivants (lecture + écriture selon les cas) :
 
-- `https://pennylane.readme.io/openapi` (par défaut)
-- ou `PENNYLANE_OPENAPI_URL` si vous voulez surcharger la source
+- **Webhook** : `/webhook_subscription` (`GET`, `POST`, `PUT`, `DELETE`)
+- **Mandate migration candidates** : `/pro_account/mandate_migrations`, `/pro_account/mandate_requests`
+- **Journals** : `/journals`, `/journals/{id}`
+- **Ledger Accounts** : `/ledger_accounts`, `/ledger_accounts/{id}`
+- **Ledger Entries** : `/ledger_entries`, `/ledger_entries/{id}`, `/ledger_entries/{ledger_entry_id}/ledger_entry_lines`
+- **Ledger Entry Lines** : `/ledger_entry_lines`, `/ledger_entry_lines/{id}`, `/ledger_entry_lines/lettering`, `/ledger_entry_lines/{ledger_entry_line_id}/categories`
+- **Comptabilité globale** : `/trial_balance`, `/fiscal_years`
+- **Exports** : `/exports/analytical_general_ledgers`, `/exports/general_ledgers`, `/exports/fecs` (+ `/{id}`)
+- **Category Groups / Categories** : `/category_groups`, `/category_groups/{id}`, `/category_groups/{category_group_id}/categories`, `/categories`, `/categories/{id}`
+- **Billing Subscriptions** : `/billing_subscriptions`, `/billing_subscriptions/{id}` et sous-ressources `invoice_lines` / `invoice_line_sections`
+- **Changelogs** : `/changelogs/customer_invoices`, `/changelogs/supplier_invoices`, `/changelogs/customers`, `/changelogs/suppliers`, `/changelogs/products`, `/changelogs/ledger_entry_lines`, `/changelogs/transactions`, `/changelogs/quotes`
+- **Commercial Documents** : `/commercial_documents`, `/commercial_documents/{id}` + `invoice_lines`, `invoice_line_sections`, `appendices`
+- **Customer Invoices** : `/customer_invoices`, `/customer_invoices/{id}` + actions (`send_by_email`, `mark_as_paid`, `finalize`, `update_imported`, `link_credit_note`, `create_from_quote`) et sous-ressources (`appendices`, `payments`, `matched_transactions`, `categories`, `custom_header_fields`)
+- **Products** : `/products`, `/products/{id}`
+- **Customers** : `/customers`, `/customers/{id}`, `/company_customers`, `/individual_customers` + `contacts` / `categories`
+- **Mandates** : `/sepa_mandates`, `/gocardless_mandates` + actions (`mail_requests`, `associations`, `cancellations`)
+- **Quotes** : `/quotes`, `/quotes/{id}` + actions (`send_by_email`, `update_status`) et sous-ressources (`invoice_lines`, `invoice_line_sections`, `appendices`)
+- **Supplier Invoices** : `/supplier_invoices`, `/supplier_invoices/{id}` + actions (`payment_status`, `validate_accounting`, `e_invoice_status`) et sous-ressources (`invoice_lines`, `payments`, `matched_transactions`, `categories`, `linked_purchase_requests`)
+- **Purchase Requests** : `/purchase_requests`, `/purchase_requests/{id}`, `/purchase_requests/imports`
+- **Suppliers** : `/suppliers`, `/suppliers/{id}`, `/suppliers/{supplier_id}/categories`
+- **Bank Accounts / Transactions** : `/bank_establishments`, `/bank_accounts`, `/bank_accounts/{id}`, `/transactions`, `/transactions/{id}` + `matched_invoices` / `categories`
+- **Autres** : `/me`, `/pa_registrations`, `/file_attachments`, `/ledger_attachments`, `/e-invoices/imports`
 
 ### Upload de fichiers (endpoints multipart)
 
