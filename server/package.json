@@ -1,6 +1,6 @@
 {
   "name": "pennylane-mcp",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Serveur MCP pour l'API Pennylane",
   "type": "module",
   "main": "index.js",

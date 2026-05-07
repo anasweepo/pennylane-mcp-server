@@ -4,20 +4,73 @@ import { z } from "zod";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-const API_TOKEN = process.env.PENNYLANE_API_TOKEN;
 const BASE = "https://app.pennylane.com/api/external/v2";
+const MAX_COMPANIES = 5;
 
-if (!API_TOKEN) {
-  console.error("❌ PENNYLANE_API_TOKEN manquant. Ajoutez-le dans la configuration de l'extension.");
+function loadCompaniesFromEnv() {
+  const list = [];
+  const seenNames = new Set();
+
+  const legacyToken = process.env.PENNYLANE_API_TOKEN;
+  if (typeof legacyToken === "string" && legacyToken.trim().length > 0) {
+    const legacyName = (process.env.PENNYLANE_COMPANY_NAME || "Société 1").trim() || "Société 1";
+    list.push({ slot: 1, name: legacyName, token: legacyToken.trim() });
+    seenNames.add(legacyName.toLowerCase());
+  }
+
+  for (let i = 1; i <= MAX_COMPANIES; i++) {
+    const token = process.env[`PENNYLANE_API_TOKEN_${i}`];
+    if (typeof token !== "string" || token.trim().length === 0) continue;
+
+    const rawName = process.env[`PENNYLANE_COMPANY_NAME_${i}`];
+    let name = (typeof rawName === "string" && rawName.trim().length > 0)
+      ? rawName.trim()
+      : `Société ${i}`;
+
+    let suffix = 1;
+    let candidate = name;
+    while (seenNames.has(candidate.toLowerCase())) {
+      suffix += 1;
+      candidate = `${name} (${suffix})`;
+    }
+    name = candidate;
+    seenNames.add(name.toLowerCase());
+
+    const existingSlot = list.find((c) => c.slot === i);
+    if (existingSlot) {
+      existingSlot.name = name;
+      existingSlot.token = token.trim();
+    } else {
+      list.push({ slot: i, name, token: token.trim() });
+    }
+  }
+
+  return list;
+}
+
+const companies = loadCompaniesFromEnv();
+
+if (companies.length === 0) {
+  console.error("❌ Aucun token Pennylane configuré. Renseignez au moins PENNYLANE_API_TOKEN_1 (et idéalement PENNYLANE_COMPANY_NAME_1) dans la configuration de l'extension.");
   process.exit(1);
 }
 
-const defaultHeaders = {
-  Authorization: `Bearer ${API_TOKEN}`,
-  Accept: "application/json"
-};
+let activeCompany = companies[0];
 
-const server = new McpServer({ name: "pennylane", version: "1.0.0" });
+function findCompanyByName(name) {
+  if (typeof name !== "string" || name.trim().length === 0) return null;
+  const needle = name.trim().toLowerCase();
+  return companies.find((c) => c.name.toLowerCase() === needle) || null;
+}
+
+function buildAuthHeaders(company) {
+  return {
+    Authorization: `Bearer ${company.token}`,
+    Accept: "application/json"
+  };
+}
+
+const server = new McpServer({ name: "pennylane", version: "1.0.5" });
 
 function withQuery(path, query = {}) {
   const url = new URL(`${BASE}${path}`);
@@ -38,11 +91,21 @@ function withPathParams(pathTemplate, pathParams = {}) {
   });
 }
 
-async function apiRequest(method, path, query, body) {
+async function apiRequest(method, path, query, body, companyOverride) {
+  let company = activeCompany;
+  if (companyOverride) {
+    const found = findCompanyByName(companyOverride);
+    if (!found) {
+      const available = companies.map((c) => c.name).join(", ");
+      throw new Error(`Société inconnue: "${companyOverride}". Sociétés disponibles: ${available}`);
+    }
+    company = found;
+  }
+
   const url = withQuery(path, query);
   const options = {
     method,
-    headers: { ...defaultHeaders }
+    headers: buildAuthHeaders(company)
   };
 
   if (method !== "GET" && body) {
@@ -271,6 +334,10 @@ function registerStaticEndpointTool({
       .optional()
       .describe("Corps JSON ou multipart via { __multipart: true, file_path, file_field_name?, filename?, content_type?, fields? }");
   }
+  inputSchema.company_name = z
+    .string()
+    .optional()
+    .describe("Nom de la société à utiliser pour cette requête (sinon, société active courante).");
 
   const friendlyMeta = buildFriendlyToolMeta(method, path, title, description);
 
@@ -282,10 +349,10 @@ function registerStaticEndpointTool({
       inputSchema,
       annotations: { ...annotationForMethod(method), title: friendlyMeta.title }
     },
-    async ({ path_params, query, body } = {}) => {
+    async ({ path_params, query, body, company_name } = {}) => {
       try {
         const resolvedPath = hasPathParams ? withPathParams(path, path_params) : path;
-        return ok(await apiRequest(method.toUpperCase(), resolvedPath, query, body));
+        return ok(await apiRequest(method.toUpperCase(), resolvedPath, query, body, company_name));
       } catch (error) {
         return err(error);
       }
@@ -491,13 +558,69 @@ server.registerTool(
       method: z.enum(["GET", "POST", "PUT", "DELETE"]).describe("Méthode HTTP"),
       path: z.string().describe("Chemin API commençant par /, ex: /customers"),
       query: z.record(z.union([z.string(), z.number(), z.boolean()])).optional().describe("Query params optionnels"),
-      body: z.record(z.any()).optional().describe("Corps JSON ou multipart via { __multipart: true, file_path, file_field_name?, filename?, content_type?, fields? }")
+      body: z.record(z.any()).optional().describe("Corps JSON ou multipart via { __multipart: true, file_path, file_field_name?, filename?, content_type?, fields? }"),
+      company_name: z.string().optional().describe("Nom de la société à utiliser pour cette requête (sinon, société active courante).")
     },
     annotations: { ...WRITE_TOOL, title: "Generic HTTP · Pennylane" }
   },
-  async ({ method, path, query, body }) => {
+  async ({ method, path, query, body, company_name }) => {
     try {
-      return ok(await apiRequest(method, path, query, body));
+      return ok(await apiRequest(method, path, query, body, company_name));
+    } catch (error) {
+      return err(error);
+    }
+  }
+);
+
+server.registerTool(
+  "pl_list_companies",
+  {
+    title: "Sociétés · Lister les sociétés disponibles",
+    description: "Liste les sociétés Pennylane configurées (jusqu'à 5) et indique celle qui est actuellement active.",
+    inputSchema: {},
+    annotations: { ...READ_ONLY, title: "Sociétés · Lister les sociétés disponibles" }
+  },
+  async () => {
+    try {
+      const list = companies.map((c) => ({
+        slot: c.slot,
+        name: c.name,
+        active: c.name === activeCompany.name
+      }));
+      return ok({
+        active: activeCompany.name,
+        count: companies.length,
+        companies: list
+      });
+    } catch (error) {
+      return err(error);
+    }
+  }
+);
+
+server.registerTool(
+  "pl_switch_company",
+  {
+    title: "Sociétés · Changer la société active",
+    description: "Change la société Pennylane active à utiliser pour les requêtes suivantes, identifiée par son nom.",
+    inputSchema: {
+      company_name: z.string().describe("Nom de la société à activer (doit correspondre à un nom configuré).")
+    },
+    annotations: { ...WRITE_TOOL, title: "Sociétés · Changer la société active" }
+  },
+  async ({ company_name }) => {
+    try {
+      const found = findCompanyByName(company_name);
+      if (!found) {
+        const available = companies.map((c) => c.name).join(", ");
+        throw new Error(`Société inconnue: "${company_name}". Sociétés disponibles: ${available}`);
+      }
+      activeCompany = found;
+      return ok({
+        message: `Société active: ${activeCompany.name}`,
+        active: activeCompany.name,
+        slot: activeCompany.slot
+      });
     } catch (error) {
       return err(error);
     }
@@ -509,4 +632,6 @@ const listedEndpointsCount = registerListedPennylaneEndpoints();
 const transport = new StdioServerTransport();
 await server.connect(transport);
 console.error("✅ Pennylane MCP Server démarré");
+console.error(`🏢 Sociétés configurées: ${companies.length} (${companies.map((c) => c.name).join(", ")})`);
+console.error(`🎯 Société active: ${activeCompany.name}`);
 console.error(`📌 Endpoints explicitement déclarés: ${listedEndpointsCount}`);

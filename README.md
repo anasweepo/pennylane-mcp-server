@@ -34,20 +34,35 @@ pennylane-mcp/
 
 ## Configuration
 
-Dans la configuration MCP, renseigner :
+Le serveur supporte jusqu'à **5 sociétés Pennylane**. Chaque société se configure avec un couple `token` + `nom`.
 
-- `PENNYLANE_API_TOKEN` (injecté via `user_config.pennylane_api_token` dans `manifest.json`)
+Dans la configuration MCP de l'extension, renseigner pour chaque société à utiliser :
 
-Le serveur ajoute automatiquement l'en-tête :
+- `Société N · Pennylane API Token` → injecté via `PENNYLANE_API_TOKEN_N`
+- `Société N · Nom` → injecté via `PENNYLANE_COMPANY_NAME_N`
+
+(`N` = 1 à 5. La société 1 est obligatoire, les autres sont optionnelles.)
+
+Le serveur ajoute automatiquement l'en-tête correspondant à la **société active** :
 
 ```http
-Authorization: Bearer <token>
+Authorization: Bearer <token_de_la_societe_active>
 ```
+
+### Switcher entre sociétés
+
+Deux outils dédiés permettent de gérer la société active :
+
+- `pl_list_companies` : liste les sociétés configurées et indique laquelle est active.
+- `pl_switch_company` : change la société active à partir de son nom (`company_name`).
+
+En complément, **chaque outil accepte un paramètre optionnel `company_name`** pour effectuer une requête ponctuelle sur une autre société sans changer la société active.
 
 ## Outils MCP exposés
 
 Outils MCP exposés à l'installation :
 
+- `Sociétés` : lister les sociétés Pennylane configurées (jusqu'à 5) et changer la société active par nom (`pl_list_companies`, `pl_switch_company`)
 - `Webhook` : souscription webhook (lecture, création, mise à jour, suppression)
 - `Mandate migration candidates` : migration de mandats vers Pro Account et demandes associées
 - `Journals` : consultation et création de journaux comptables
@@ -121,7 +136,11 @@ Pour les endpoints de type upload (ex: `file_attachments`, `ledger_attachments`,
 ```bash
 cd server
 npm install
-PENNYLANE_API_TOKEN=xxxxx node index.js
+# Société 1 (obligatoire)
+PENNYLANE_API_TOKEN_1=xxxxx PENNYLANE_COMPANY_NAME_1="Ma Société" \
+# Sociétés 2 à 5 (optionnelles)
+PENNYLANE_API_TOKEN_2=yyyyy PENNYLANE_COMPANY_NAME_2="Autre Société" \
+node index.js
 ```
 
 ## Publier une version

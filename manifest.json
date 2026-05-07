@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "pennylane-mcp",
   "display_name": "Pennylane MCP",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Serveur MCP pour l'API Pennylane v2 (GET, POST, PUT, DELETE).",
   "long_description": "Ce bundle expose l'API externe Pennylane v2 via le Model Context Protocol. Il fournit un outil dédié pour récupérer la souscription webhook du token courant, ainsi que des outils HTTP génériques GET, POST, PUT et DELETE pour couvrir le reste de l'API. Le token est saisi dans la configuration de l'extension puis transmis localement au serveur via variable d'environnement.",
   "author": {
@@ -21,11 +21,24 @@
         "${__dirname}/server/index.js"
       ],
       "env": {
-        "PENNYLANE_API_TOKEN": "${user_config.pennylane_api_token}"
+        "PENNYLANE_API_TOKEN_1": "${user_config.pennylane_api_token_1}",
+        "PENNYLANE_COMPANY_NAME_1": "${user_config.pennylane_company_name_1}",
+        "PENNYLANE_API_TOKEN_2": "${user_config.pennylane_api_token_2}",
+        "PENNYLANE_COMPANY_NAME_2": "${user_config.pennylane_company_name_2}",
+        "PENNYLANE_API_TOKEN_3": "${user_config.pennylane_api_token_3}",
+        "PENNYLANE_COMPANY_NAME_3": "${user_config.pennylane_company_name_3}",
+        "PENNYLANE_API_TOKEN_4": "${user_config.pennylane_api_token_4}",
+        "PENNYLANE_COMPANY_NAME_4": "${user_config.pennylane_company_name_4}",
+        "PENNYLANE_API_TOKEN_5": "${user_config.pennylane_api_token_5}",
+        "PENNYLANE_COMPANY_NAME_5": "${user_config.pennylane_company_name_5}"
       }
     }
   },
   "tools": [
+    {
+      "name": "Sociétés",
+      "description": "Lister les sociétés Pennylane configurées (jusqu'à 5) et changer la société active par nom."
+    },
     {
       "name": "Webhook",
       "description": "Souscription webhook (lecture, création, mise à jour, suppression)."
@@ -121,12 +134,75 @@
   ],
   "license": "MIT",
   "user_config": {
-    "pennylane_api_token": {
+    "pennylane_api_token_1": {
       "type": "string",
-      "title": "Pennylane API Token",
-      "description": "Token d'API Pennylane (OAuth Bearer ou token développeur), stocké localement puis injecté via PENNYLANE_API_TOKEN.",
+      "title": "Société 1 · Pennylane API Token",
+      "description": "Token d'API Pennylane pour la société 1 (obligatoire). Injecté via PENNYLANE_API_TOKEN_1.",
       "sensitive": true,
       "required": true
+    },
+    "pennylane_company_name_1": {
+      "type": "string",
+      "title": "Société 1 · Nom",
+      "description": "Nom de la société 1 (utilisé pour switcher entre sociétés via pl_switch_company).",
+      "sensitive": false,
+      "required": true
+    },
+    "pennylane_api_token_2": {
+      "type": "string",
+      "title": "Société 2 · Pennylane API Token",
+      "description": "Token d'API Pennylane pour la société 2 (optionnel). Injecté via PENNYLANE_API_TOKEN_2.",
+      "sensitive": true,
+      "required": false
+    },
+    "pennylane_company_name_2": {
+      "type": "string",
+      "title": "Société 2 · Nom",
+      "description": "Nom de la société 2 (optionnel).",
+      "sensitive": false,
+      "required": false
+    },
+    "pennylane_api_token_3": {
+      "type": "string",
+      "title": "Société 3 · Pennylane API Token",
+      "description": "Token d'API Pennylane pour la société 3 (optionnel). Injecté via PENNYLANE_API_TOKEN_3.",
+      "sensitive": true,
+      "required": false
+    },
+    "pennylane_company_name_3": {
+      "type": "string",
+      "title": "Société 3 · Nom",
+      "description": "Nom de la société 3 (optionnel).",
+      "sensitive": false,
+      "required": false
+    },
+    "pennylane_api_token_4": {
+      "type": "string",
+      "title": "Société 4 · Pennylane API Token",
+      "description": "Token d'API Pennylane pour la société 4 (optionnel). Injecté via PENNYLANE_API_TOKEN_4.",
+      "sensitive": true,
+      "required": false
+    },
+    "pennylane_company_name_4": {
+      "type": "string",
+      "title": "Société 4 · Nom",
+      "description": "Nom de la société 4 (optionnel).",
+      "sensitive": false,
+      "required": false
+    },
+    "pennylane_api_token_5": {
+      "type": "string",
+      "title": "Société 5 · Pennylane API Token",
+      "description": "Token d'API Pennylane pour la société 5 (optionnel). Injecté via PENNYLANE_API_TOKEN_5.",
+      "sensitive": true,
+      "required": false
+    },
+    "pennylane_company_name_5": {
+      "type": "string",
+      "title": "Société 5 · Nom",
+      "description": "Nom de la société 5 (optionnel).",
+      "sensitive": false,
+      "required": false
     }
   },
   "compatibility": {
