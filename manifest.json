@@ -30,7 +30,11 @@
         "PENNYLANE_API_TOKEN_4": "${user_config.pennylane_api_token_4}",
         "PENNYLANE_COMPANY_NAME_4": "${user_config.pennylane_company_name_4}",
         "PENNYLANE_API_TOKEN_5": "${user_config.pennylane_api_token_5}",
-        "PENNYLANE_COMPANY_NAME_5": "${user_config.pennylane_company_name_5}"
+        "PENNYLANE_COMPANY_NAME_5": "${user_config.pennylane_company_name_5}",
+        "PENNYLANE_API_TOKEN_6": "${user_config.pennylane_api_token_6}",
+        "PENNYLANE_COMPANY_NAME_6": "${user_config.pennylane_company_name_6}",
+        "PENNYLANE_API_TOKEN_7": "${user_config.pennylane_api_token_7}",
+        "PENNYLANE_COMPANY_NAME_7": "${user_config.pennylane_company_name_7}"
       }
     }
   },
@@ -201,6 +205,34 @@
       "type": "string",
       "title": "Société 5 · Nom",
       "description": "Nom de la société 5 (optionnel).",
+      "sensitive": false,
+      "required": false
+    },
+    "pennylane_api_token_6": {
+      "type": "string",
+      "title": "Société 6 · Pennylane API Token",
+      "description": "Token d'API Pennylane pour la société 6 (optionnel). Injecté via PENNYLANE_API_TOKEN_6.",
+      "sensitive": true,
+      "required": false
+    },
+    "pennylane_company_name_6": {
+      "type": "string",
+      "title": "Société 6 · Nom",
+      "description": "Nom de la société 6 (optionnel).",
+      "sensitive": false,
+      "required": false
+    },
+    "pennylane_api_token_7": {
+      "type": "string",
+      "title": "Société 7 · Pennylane API Token",
+      "description": "Token d'API Pennylane pour la société 7 (optionnel). Injecté via PENNYLANE_API_TOKEN_7.",
+      "sensitive": true,
+      "required": false
+    },
+    "pennylane_company_name_7": {
+      "type": "string",
+      "title": "Société 7 · Nom",
+      "description": "Nom de la société 7 (optionnel).",
       "sensitive": false,
       "required": false
     }

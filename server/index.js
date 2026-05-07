@@ -5,7 +5,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 const BASE = "https://app.pennylane.com/api/external/v2";
-const MAX_COMPANIES = 5;
+const MAX_COMPANIES = 7;
 
 function loadCompaniesFromEnv() {
   const list = [];
