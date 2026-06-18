@@ -2,7 +2,7 @@
 
 Serveur **MCP** (bundle MCPB) pour l'API externe Pennylane v2.
 
-**Version actuelle :** `1.0.7`
+**Version actuelle :** `1.0.8`
 
 ## Installation (utilisateur)
 1. Télécharger le fichier `pennylane-mcp-vX.Y.Z.mcpb` depuis les [Releases](https://github.com/anasweepo/pennylane-mcp-server/releases) du dépôt.
@@ -104,10 +104,11 @@ Le serveur couvre les endpoints suivants (lecture + écriture selon les cas) :
 - **Customer Invoices** : `/customer_invoices`, `/customer_invoices/{id}` + actions (`send_by_email`, `send_to_pa`, `mark_as_paid`, `finalize`, `update_imported`, `link_credit_note`, `create_from_quote`) + imports e-facture (`/customer_invoices/e_invoices/imports`, `/customer_invoices/import`) et sous-ressources (`appendices`, `payments`, `matched_transactions`, `categories`, `custom_header_fields`)
 - **Customer Invoice Templates** : `/customer_invoice_templates`
 - **Products** : `/products`, `/products/{id}`- **Customers** : `/customers`, `/customers/{id}`, `/company_customers`, `/individual_customers` + `contacts` / `categories`
-- **Mandates** : `/sepa_mandates`, `/gocardless_mandates` + actions (`mail_requests`, `associations`, `cancellations`)
+- **Mandates** : `/sepa_mandates`, `/gocardless_mandates`, `/pro_account/mandates` + actions (`mail_requests`, `associations`, `cancellations`)
 - **Quotes** : `/quotes`, `/quotes/{id}` + actions (`send_by_email`, `update_status`) et sous-ressources (`invoice_lines`, `invoice_line_sections`, `appendices`)
 - **Supplier Invoices** : `/supplier_invoices`, `/supplier_invoices/{id}` + actions (`payment_status`, `validate_accounting`, `e_invoice_status`) + import e-facture (`/supplier_invoices/e_invoices/imports`, `/supplier_invoices/import`) et sous-ressources (`invoice_lines`, `payments`, `matched_transactions`, `categories`, `linked_purchase_requests`)
-- **Purchase Requests** : `/purchase_requests`, `/purchase_requests/{id}`, `/purchase_requests/imports`- **Suppliers** : `/suppliers`, `/suppliers/{id}`, `/suppliers/{supplier_id}/categories`
+- **Purchase Requests** : `/purchase_requests`, `/purchase_requests/{id}`, `/purchase_requests/imports`
+- **Suppliers** : `/suppliers`, `/suppliers/{id}`, `/suppliers/{supplier_id}/categories`
 - **Bank Accounts / Transactions** : `/bank_establishments`, `/bank_accounts`, `/bank_accounts/{id}`, `/transactions`, `/transactions/{id}` + `matched_invoices` / `categories`
 - **Autres** : `/me`, `/pa_registrations`, `/file_attachments`, `/ledger_attachments`, `/e-invoices/imports`
 
@@ -139,16 +140,17 @@ npm install
 PENNYLANE_API_TOKEN_1=xxxxx PENNYLANE_COMPANY_NAME_1="Ma Société" \
 # Sociétés 2 à 7 (optionnelles)
 PENNYLANE_API_TOKEN_2=yyyyy PENNYLANE_COMPANY_NAME_2="Autre Société" \
-node index.js```
+node index.js
+```
 
 ## Publier une version
 
-Aligner la version dans `manifest.json`, `server/package.json`, `server/package-lock.json` et `server/index.js`, puis :
+Aligner la version dans `manifest.json`, `server/package.json`, `server/package-lock.json`, `server/index.js` et `README.md`, puis :
 
 ```bash
-git add manifest.json server/package.json server/package-lock.json server/index.js
-git commit -m "chore: bump version to 1.0.7"
-git tag v1.0.7
+git add manifest.json server/package.json server/package-lock.json server/index.js README.md
+git commit -m "chore: bump version to 1.0.8"
+git tag v1.0.8
 git push origin main --tags
 ```
 

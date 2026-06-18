@@ -70,7 +70,7 @@ function buildAuthHeaders(company) {
   };
 }
 
-const server = new McpServer({ name: "pennylane", version: "1.0.7" });
+const server = new McpServer({ name: "pennylane", version: "1.0.8" });
 
 function withQuery(path, query = {}) {
   const url = new URL(`${BASE}${path}`);
@@ -513,7 +513,7 @@ function registerListedPennylaneEndpoints() {
     { name: "pl_post_pro_account_mandate_mail_requests", title: "Mandates · Send a Pro Account SEPA mandate request", description: "This endpoint allows you to send a mandate request for a Pro Account SEPA Direct Debit mandate to a customer. Requirements: Company must have a Pro Account (returns 404 if not). Company must have an enabled merchant profile (returns 403 if not). This endpoint requires the following scope: customer_mandates:all", method: "POST", path: "/pro_account/mandate_requests", hasQuery: false, hasBody: true },
     { name: "pl_post_pro_account_mandate_migrations", title: "Mandates · Migrate a mandate to a Pro Account", description: "This endpoint allows you to migrate a mandate to a Pro Account. Only mandates with status 'available' are eligible for migration. Requirements: Company must have a Pro Account (returns 404 if not). Company must have an enabled merchant profile (returns 403 if not). This endpoint requires the following scope: customer_mandates:all", method: "POST", path: "/pro_account/mandate_migrations", hasQuery: false, hasBody: true },
     { name: "pl_doc_putsepamandate", title: "Mandates · Update a SEPA mandate", description: "This endpoint allows you to update an existing SEPA mandate. This endpoint requires the following scope: customer_mandates:all", method: "PUT", path: "/sepa_mandates/{id}", hasPathParams: true, hasQuery: true, hasBody: true },
-    // manque : List Pro Account payment mandates - https://pennylane.readme.io/reference/getproaccountmandates
+    { name: "pl_get_pro_account_mandates", title: "Mandates · List Pro Account payment mandates", description: "This endpoint allows you to retrieve all payment mandates associated with your company's pro account. Requirements: Company must have a Pro Account (returns 404 if not). Company must have an enabled merchant profile (returns 403 if not). This endpoint requires one of the following scopes: customer_mandates:readonly, customer_mandates:all", method: "GET", path: "/pro_account/mandates", hasQuery: true },
     { name: "pl_doc_deletesepamandate", title: "Mandates · Delete a SEPA mandate", description: "This endpoint allows you to delete a specific SEPA mandate. This endpoint requires the following scope: customer_mandates:all", method: "DELETE", path: "/sepa_mandates/{id}", hasPathParams: true, hasQuery: true, hasBody: false },
     { name: "pl_doc_getgocardlessmandates", title: "Mandates · List gocardless mandates", description: "List gocardless mandates. This endpoint requires one of the following scopes: customer_mandates:all, customer_mandates:readonly", method: "GET", path: "/gocardless_mandates", hasPathParams: false, hasQuery: true, hasBody: false },
     { name: "pl_doc_getgocardlessmandate", title: "Mandates · Get a Gocardless mandate", description: "This endpoint allows you to retrieve a specific Gocardless mandate by ID. This endpoint requires one of the following scopes: customer_mandates:all, customer_mandates:readonly", method: "GET", path: "/gocardless_mandates/{id}", hasPathParams: true, hasQuery: true, hasBody: false },
